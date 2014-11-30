@@ -1,0 +1,142 @@
+/*
+ *  Copyright 2010 by Texas Instruments Incorporated.
+ *  All rights reserved. Property of Texas Instruments Incorporated.
+ *  Restricted rights to use, duplicate or disclose this code are
+ *  granted through contract.
+ *
+ */
+/*
+ *  ======== tsk.tcf ========
+ *  Configuration script used to generate the example's configuration files
+ */
+
+utils.loadPlatform("ti.platforms.evm5515");
+
+bios.enableRealTimeAnalysis(prog);
+bios.enableMemoryHeaps(prog);
+bios.enableRtdx(prog);
+bios.enableTskManager(prog);
+
+/*
+ * Enable heaps in DARAM and define label SEG0 for heap usage.
+ */
+
+bios.DARAM.createHeap      = true;
+bios.DARAM.enableHeapLabel = true;
+bios.DARAM["heapLabel"]    = prog.extern("SEG0");
+bios.DARAM.heapSize        = 0x500;
+bios.MEM.BIOSOBJSEG = prog.get("DARAM");
+bios.MEM.MALLOCSEG = prog.get("DARAM");
+
+
+/*
+ *  Define the GBL memory model 
+ */
+
+bios.GBL.MEMORYMODEL = "LARGE";
+/* Increase the buffer size of the LOG_system LOG object */
+
+bios.LOG_system.bufLen = 512;
+
+/* Create a trace LOG object for printing basic program output.  */
+
+var trace = bios.LOG.create("trace");
+trace.bufLen = 1024;
+trace.logType = "circular";
+
+bios.HWI.instance("HWI_INT8").useDispatcher = 1;
+bios.HWI.instance("HWI_INT8").fxn = prog.extern("DmaInterrupt");
+
+bios.IDL.create("IDL_ButtonMonitor");
+bios.IDL.instance("IDL_ButtonMonitor").order = 1;
+bios.IDL.instance("IDL_ButtonMonitor").fxn = prog.extern("IDLButtonMonitor");
+bios.TSK.instance("TSK_idle").order = 1;
+bios.TSK.create("TSK_AudioProcessing");
+bios.TSK.instance("TSK_AudioProcessing").order = 3;
+bios.TSK.instance("TSK_AudioProcessing").fxn = prog.extern("AudioProcessingTsk");
+bios.SEM.create("SEM_AudioProcessor");
+bios.TSK.create("TSK_OutputAudio");
+bios.TSK.instance("TSK_OutputAudio").order = 4;
+bios.TSK.instance("TSK_OutputAudio").fxn = prog.extern("AudioTransmitTsk");
+bios.SEM.create("SEM_OutputAudio");
+bios.TSK.instance("TSK_OutputAudio").order = 1;
+bios.TSK.instance("TSK_idle").order = 2;
+bios.TSK.instance("TSK_OutputAudio").priority = 2;
+bios.TSK.instance("TSK_OutputAudio").priority = 1;
+bios.TSK.instance("TSK_idle").order = 1;
+bios.TSK.instance("TSK_AudioProcessing").order = 2;
+bios.TSK.instance("TSK_OutputAudio").order = 3;
+bios.TSK.instance("TSK_OutputAudio").order = 2;
+bios.TSK.instance("TSK_AudioProcessing").order = 3;
+bios.TSK.instance("TSK_AudioProcessing").stackMemSeg = prog.get("SRAM");
+bios.TSK.instance("TSK_AudioProcessing").stackSize = 2048;
+bios.TSK.instance("TSK_OutputAudio").stackSize = 2048;
+bios.TSK.instance("TSK_OutputAudio").stackMemSeg = prog.get("SRAM");
+bios.TSK.instance("TSK_OutputAudio").stackMemSeg = prog.get("SARAM");
+bios.TSK.instance("TSK_AudioProcessing").stackMemSeg = prog.get("SARAM");
+bios.MEM.CONSTSEG = prog.get("SARAM");
+bios.TSK.instance("TSK_AudioProcessing").stackMemSeg = prog.get("DARAM");
+bios.TSK.instance("TSK_OutputAudio").stackMemSeg = prog.get("DARAM");
+bios.IDL.instance("LNK_dataPump").order = 1;
+bios.IDL.instance("RTA_dispatcher").order = 2;
+bios.IDL.instance("IDL_cpuLoad").order = 3;
+bios.IDL.instance("PWRM_idleDomains").order = 4;
+bios.IDL.instance("IDL_ButtonMonitor").destroy();
+bios.IDL.create("IDL_dftHandler");
+bios.IDL.instance("IDL_dftHandler").order = 6;
+bios.IDL.instance("IDL_dftHandler").fxn = prog.extern("IDL_DFTtoLCD", "asm");
+bios.IDL.instance("IDL_dftHandler").fxn = prog.extern("IDL_DFTtoLCD");
+bios.SEM.create("SEM_FFTMutex");
+bios.SEM.instance("SEM_FFTMutex").count = 1;
+bios.SEM.create("SEM_FFTProcessor");
+bios.TSK.create("TSK_FFTProcessor");
+bios.TSK.instance("TSK_FFTProcessor").order = 4;
+bios.TSK.instance("TSK_FFTProcessor").fxn = prog.extern("PerformFFT");
+bios.TSK.instance("TSK_OutputAudio").order = 1;
+bios.TSK.instance("TSK_idle").order = 2;
+bios.TSK.instance("TSK_OutputAudio").priority = 2;
+bios.TSK.instance("TSK_AudioProcessing").order = 1;
+bios.TSK.instance("TSK_OutputAudio").order = 2;
+bios.TSK.instance("TSK_idle").order = 3;
+bios.TSK.instance("TSK_AudioProcessing").priority = 2;
+bios.TSK.instance("TSK_FFTProcessor").fxn = prog.extern("PerformFFTTsk");
+bios.IDL.instance("IDL_dftHandler").order = 2;
+bios.IDL.instance("RTA_dispatcher").order = 3;
+bios.IDL.instance("IDL_cpuLoad").order = 4;
+bios.IDL.instance("PWRM_idleDomains").order = 5;
+bios.IDL.instance("IDL_dftHandler").order = 1;
+bios.IDL.instance("LNK_dataPump").order = 2;
+bios.IDL.instance("IDL_dftHandler").fxn = prog.extern("IDL_DFTtoLCD", "asm");
+bios.IDL.instance("IDL_dftHandler").fxn = prog.extern("IDL_DFTtoLCD");
+bios.IDL.instance("LNK_dataPump").order = 1;
+bios.IDL.instance("RTA_dispatcher").order = 2;
+bios.IDL.instance("IDL_cpuLoad").order = 3;
+bios.IDL.instance("PWRM_idleDomains").order = 4;
+bios.IDL.instance("IDL_dftHandler").destroy();
+bios.TSK.instance("TSK_idle").order = 2;
+bios.TSK.instance("TSK_OutputAudio").order = 3;
+bios.TSK.instance("TSK_AudioProcessing").priority = 3;
+bios.TSK.instance("TSK_OutputAudio").order = 1;
+bios.TSK.instance("TSK_AudioProcessing").order = 2;
+bios.TSK.instance("TSK_idle").order = 3;
+bios.TSK.instance("TSK_OutputAudio").priority = 3;
+bios.TSK.instance("TSK_FFTProcessor").order = 1;
+bios.TSK.instance("TSK_OutputAudio").order = 2;
+bios.TSK.instance("TSK_AudioProcessing").order = 3;
+bios.TSK.instance("TSK_idle").order = 4;
+bios.TSK.instance("TSK_FFTProcessor").priority = 2;
+bios.TSK.instance("TSK_AudioProcessing").order = 1;
+bios.TSK.instance("TSK_FFTProcessor").order = 2;
+bios.TSK.instance("TSK_OutputAudio").order = 3;
+bios.SEM.instance("SEM_FFTMutex").destroy();
+bios.SEM.create("SEM_StartUI");
+bios.SEM.instance("SEM_StartUI").count = 1;
+bios.SEM.instance("SEM_StartUI").count = 0;
+bios.IDL.create("IDL_WriteLCD");
+bios.IDL.instance("IDL_WriteLCD").order = 6;
+bios.IDL.instance("IDL_WriteLCD").fxn = prog.extern("IDL_DFTtoLCD");
+// !GRAPHICAL_CONFIG_TOOL_SCRIPT_INSERT_POINT!
+
+if (config.hasReportedError == false) {
+    prog.gen();
+}

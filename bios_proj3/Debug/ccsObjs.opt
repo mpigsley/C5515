@@ -1,0 +1,1 @@
+-l"./tskcfg.cmd" "./userInterface.obj" "./tskcfg_c.obj" "./tskcfg.obj" "./main.obj" "./i2s.obj" "./fir_filter.obj" "./fir2.obj" "./dma.obj" "./audio.obj" "./aic3204.obj" "../include/usbstk5515bsl.lib" -l"usbstk5515bsl.lib" -l"libc.a" 

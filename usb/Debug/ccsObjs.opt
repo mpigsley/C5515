@@ -1,0 +1,1 @@
+"./sar.obj" "./main.obj" "../lnkx.cmd" -l"rts55x.lib" 

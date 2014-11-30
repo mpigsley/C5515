@@ -1,0 +1,1 @@
+"./uled_test.obj" "./main.obj" -l"usbstk5515bsl.lib" -l"rts55x.lib" 
